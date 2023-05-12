@@ -27,22 +27,37 @@ async function run() {
     await client.connect();
 
     // create a coffeeCollection
-    const coffeeCollection = client.db("coffeeDB").collection("coffee")
-    
+    const coffeeCollection = client.db("coffeeDB").collection("coffee");
+
     // read all coffee document
-    app.get('/coffee', async(req, res) =>{
+    app.get("/coffee", async (req, res) => {
       const cursor = coffeeCollection.find();
       const result = await cursor.toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
+
+    // read a coffee document
+    app.get("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query);
+      res.send(result);
+    });
 
     // create a coffee document
-    app.post('/coffee', async(req, res) =>{
+    app.post("/coffee", async (req, res) => {
       const coffee = req.body;
       const result = await coffeeCollection.insertOne(coffee);
       res.send(result);
-    })
+    });
 
+    // delete a coffee document
+    app.delete("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.deleteOne(query);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
