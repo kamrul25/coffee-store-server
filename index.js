@@ -10,9 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // mongoDB
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vylcgzn.mongodb.net/?retryWrites=true&w=majority`;
-
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -27,6 +25,25 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    // create a coffeeCollection
+    const coffeeCollection = client.db("coffeeDB").collection("coffee")
+    
+    // read all coffee document
+    app.get('/coffee', async(req, res) =>{
+      const cursor = coffeeCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
+    // create a coffee document
+    app.post('/coffee', async(req, res) =>{
+      const coffee = req.body;
+      const result = await coffeeCollection.insertOne(coffee);
+      res.send(result);
+    })
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -34,7 +51,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
