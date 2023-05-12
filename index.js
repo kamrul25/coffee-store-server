@@ -46,8 +46,36 @@ async function run() {
 
     // create a coffee document
     app.post("/coffee", async (req, res) => {
-      const coffee = req.body;
-      const result = await coffeeCollection.insertOne(coffee);
+      const newCoffee = req.body;
+      console.log(newCoffee);
+      const result = await coffeeCollection.insertOne(newCoffee);
+      res.send(result);
+    });
+
+    // update a document
+    app.put("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+
+      const coffee = {
+        $set: {
+          name: updatedCoffee.name,
+          quantity: updatedCoffee.quantity,
+          supplier: updatedCoffee.supplier,
+          taste: updatedCoffee.taste,
+          category: updatedCoffee.category,
+          details: updatedCoffee.details,
+          photo: updatedCoffee.photo,
+        },
+      };
+
+      const result = await coffeeCollection.updateOne(
+        filter,
+        options,
+        updatedCoffee
+      );
       res.send(result);
     });
 
